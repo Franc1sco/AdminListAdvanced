@@ -1,0 +1,20 @@
+"adminlist_advanced"
+{
+        // example
+	"STEAM_0:0:25671458" // steamid example
+	{
+		"tag"		"[LEADER]" // tag example
+	}
+
+
+
+	"STEAMID HERE"
+	{
+		"tag"		"TAG HERE" 
+	}
+
+	"STEAMID HERE" 
+	{
+		"tag"		"TAG HERE" 
+	}
+}
