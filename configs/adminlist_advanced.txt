@@ -10,7 +10,7 @@
 
 	"STEAMID HERE"
 	{
-		"tag"		"TAG HERE" 
+		"hide"		"yes" // dont show this admin. Default is "no"
 	}
 
 	"STEAMID HERE" 
