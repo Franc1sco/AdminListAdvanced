@@ -17,13 +17,12 @@
 
 #pragma semicolon 1
 #include <sourcemod>
-#include <colors>
+#include <multicolors>
 
-#define DATA "v3.0"
+#define DATA "v4.0"
 
 new Handle:listadeadmins = INVALID_HANDLE;
 new Handle:cvar_menu = INVALID_HANDLE;
-new Handle:cvar_cmd = INVALID_HANDLE;
 
 enum Numeros
 {
@@ -37,54 +36,30 @@ new g_ListCount;
 
 new Handle:g_ListIndex = INVALID_HANDLE;
 
-new Handle:g_CVarAdmFlag;
-new g_AdmFlag;
-
-new String:thecommand[64];
 new bool:usemenu;
-
-// Quien quiera aprender a programar que vaya a 
-// www.servers-cfg.foroactivo.com que ahi tenemos un subforo para usuarios registrados
 
 
 public Plugin:myinfo =
 {
 	name = "SM Admin List Advanced",
-	author = "Franc1sco Steam: franug",
+	author = "Franc1sco franug",
 	description = "A configurable admin list sytem",
 	version = DATA,
-	url = "www.servers-cfg.foroactivo.com"
+	url = "http://steamcommunity.com/id/franug"
 };
 
 public OnPluginStart()
 {
-	CreateConVar("sm_adminlist_advanced", DATA, "version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+	CreateConVar("sm_adminlist_advanced", DATA, "version", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 
 	cvar_menu = CreateConVar("sm_adminlist_menu", "0", "1 = show admins in menu. 0 = show admins in chat");
 
-	cvar_cmd = CreateConVar("sm_adminlist_command", "!admins", "the command to show admins");
-
+	AddCommandListener(Command_Admins,"sm_admins");
+	
 	RegAdminCmd("sm_adminlist_reload", RecargarLista, ADMFLAG_ROOT);
-	
-	g_CVarAdmFlag = CreateConVar("sm_adminlist_adminflag", "0", "Admin flag required to appear in the list. 0 = No flag needed xD. Can use a b c ....");
-	
-	HookConVarChange(g_CVarAdmFlag, CVarChange);
-	HookConVarChange(cvar_cmd, CVarChange2);
+
 	HookConVarChange(cvar_menu, CVarChange2);
-	
-	RegConsoleCmd("say", Command_Say);
-	RegConsoleCmd("say_team", Command_Say);
 
-	/*decl String:comando[64];
-	GetConVarString(cvar_cmd, comando, sizeof(comando));
-	RegConsoleCmd(comando,Comando_Admins);*/
-
-
-}
-
-public CVarChange(Handle:convar, const String:oldValue[], const String:newValue[]) {
-
-	g_AdmFlag = ReadFlagString(newValue);
 }
 
 public CVarChange2(Handle:convar_hndl, const String:oldValue[], const String:newValue[])
@@ -95,7 +70,6 @@ public CVarChange2(Handle:convar_hndl, const String:oldValue[], const String:new
 public GetCVars()
 {
 	usemenu = GetConVarBool(cvar_menu);
-	GetConVarString(cvar_cmd, thecommand, sizeof(thecommand));
 
 }
 
@@ -123,12 +97,10 @@ public OnMapStart()
 	RecargarListaCache();
 }
 
-public Action:Command_Say(client, args)
+public Action:Command_Admins(client,const char[] command, args)
 {
-	decl String:arg1[64];
-	GetCmdArg(1, arg1, sizeof(arg1));
-	//PrintToChatAll("%s y el comando que se busca es %s",arg1,thecommand);
-	if(StrEqual(arg1, thecommand)) Comando_Admins(client);
+	Comando_Admins(client);
+	return Plugin_Stop;
 
 }
 
@@ -192,13 +164,9 @@ RecargarListaCache()
 
 Comando_Admins(client)
 {
-	//PrintToChatAll("hook ejecutado");
 	new Adms[129],count = 0;
 	for (new i = 1; i <= MaxClients; i++)
-		if (IsClientInGame(i) && ((g_AdmFlag == 0) || CheckCommandAccess(client, "sm_admins", g_AdmFlag, true)) ) Adms[count++] = i;
-
-
-        //PrintToChat(client,"admins: %i", count); 
+		if (IsClientInGame(i) && GetUserAdmin(i) != INVALID_ADMIN_ID) Adms[count++] = i;
 
 	if (count)
 	{
@@ -210,7 +178,7 @@ Comando_Admins(client)
 			{
 				//KvRewind(listadeadmins);
 				decl String:status_steamid[24];
-				GetClientAuthString(Adms[i], status_steamid, sizeof(status_steamid));
+				GetClientAuthId(Adms[i], AuthId_Engine, status_steamid, sizeof(status_steamid));
 
 				new listado = -1;
 				if (GetTrieValue(g_ListIndex, status_steamid, listado))
@@ -239,13 +207,13 @@ Comando_Admins(client)
 			return;
 		}
 
-		PrintToChat(client,"\x01------------\x03ADMIN LIST ADVANCED\x01------------");
+		CPrintToChat(client,"{default}------------{lightgreen}ADMIN LIST ADVANCED{default}------------");
 		PrintToChat(client,"---------------------------------------------------");
 		for (new i = 0; i < count; i++)
 		{
 			//KvRewind(listadeadmins);
 			decl String:status_steamid[24];
-			GetClientAuthString(Adms[i], status_steamid, sizeof(status_steamid));
+			GetClientAuthId(Adms[i], AuthId_Engine, status_steamid, sizeof(status_steamid));
 
 			new listado = -1;
 			if (GetTrieValue(g_ListIndex, status_steamid, listado))

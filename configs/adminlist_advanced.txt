@@ -1,7 +1,7 @@
 "adminlist_advanced"
 {
         // example
-	"STEAM_0:0:25671458" // steamid example
+	"STEAM_1:0:25671458" // steamid example
 	{
 		"tag"		"[LEADER]" // tag example
 	}
