@@ -19,7 +19,7 @@
 #include <sourcemod>
 #include <multicolors>
 
-#define DATA "v4.0"
+#define DATA "v4.1"
 
 new Handle:listadeadmins = INVALID_HANDLE;
 new Handle:cvar_menu = INVALID_HANDLE;
@@ -186,7 +186,6 @@ Comando_Admins(client)
 
 					if (StrContains(g_list[listado][hide], "yes", true) == -1)
 					{
-
 						decl String:paraelmenu[128];
 						Format(paraelmenu,sizeof(paraelmenu),"%s %N", g_list[listado][tag],Adms[i]);
 
@@ -196,9 +195,23 @@ Comando_Admins(client)
 				}
 				else 
 				{
-					decl String:paraelmenu2[128];
-					Format(paraelmenu2,sizeof(paraelmenu2), "[ADMIN] %N",Adms[i]);
-					AddMenuItem(menu, paraelmenu2, paraelmenu2);
+					char group[64];
+					if (GetAdminGroup(GetUserAdmin(Adms[i]), 0, group, sizeof(group)) != INVALID_GROUP_ID && GetTrieValue(g_ListIndex, group, listado))
+					{
+						if (StrContains(g_list[listado][hide], "yes", true) == -1)
+						{
+							decl String:paraelmenu[128];
+							Format(paraelmenu,sizeof(paraelmenu),"%s %N", g_list[listado][tag],Adms[i]);
+
+							AddMenuItem(menu, paraelmenu, paraelmenu);
+						}
+					}
+					else
+					{
+						decl String:paraelmenu2[128];
+						Format(paraelmenu2,sizeof(paraelmenu2), "[ADMIN] %N",Adms[i]);
+						AddMenuItem(menu, paraelmenu2, paraelmenu2);
+					}
 				}
 			}
 			SetMenuExitButton(menu, true);
@@ -218,15 +231,24 @@ Comando_Admins(client)
 			new listado = -1;
 			if (GetTrieValue(g_ListIndex, status_steamid, listado))
 			{
-
 				if (StrContains(g_list[listado][hide], "yes", true) == -1)
 				{
 
 					CPrintToChatEx(client,Adms[i],"{green}%s {teamcolor}%N",g_list[listado][tag],Adms[i]);
 				}
-
 			}
-			else CPrintToChatEx(client,Adms[i],"{green}[ADMIN] {teamcolor}%N",Adms[i]);
+			else
+			{
+				char group[64];
+				if (GetAdminGroup(GetUserAdmin(Adms[i]), 0, group, sizeof(group)) != INVALID_GROUP_ID && GetTrieValue(g_ListIndex, group, listado))
+				{
+					if (StrContains(g_list[listado][hide], "yes", true) == -1)
+					{
+						CPrintToChatEx(client,Adms[i],"{green}%s {teamcolor}%N",g_list[listado][tag],Adms[i]);
+					}
+				}
+				else CPrintToChatEx(client,Adms[i],"{green}[ADMIN] {teamcolor}%N",Adms[i]);
+			}
 		}
 		CPrintToChatEx(client,client,"---------------------------------------------------");
 	}

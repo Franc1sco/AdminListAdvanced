@@ -6,8 +6,6 @@
 		"tag"		"[LEADER]" // tag example
 	}
 
-
-
 	"STEAMID HERE"
 	{
 		"hide"		"yes" // dont show this admin. Default is "no"
@@ -17,4 +15,10 @@
 	{
 		"tag"		"TAG HERE" 
 	}
+
+	"Server Leaders" // Name (must be exact) of the sourcemod group
+	{
+		"tag"		"[LEADER]" // tag for appy to people that have this sourcemod group
+	}
+
 }
